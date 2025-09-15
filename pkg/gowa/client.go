@@ -455,3 +455,361 @@ func (c *Client) SendImageURL(ctx context.Context, phone, caption, imageURL stri
 	}
 	return &out, nil
 }
+
+type SendAudioParams struct {
+	Phone       string
+	AudioPath   string // arquivo local
+	AudioURL    string // url
+	IsForwarded bool
+	Duration    int
+}
+
+func (c *Client) SendAudio(ctx context.Context, p SendAudioParams) (*SendResponse, error) {
+	if p.Phone == "" || (p.AudioPath == "" && p.AudioURL == "") {
+		return nil, errors.New("phone and audio required")
+	}
+	fields := map[string]string{
+		"phone":        p.Phone,
+		"is_forwarded": fmt.Sprint(p.IsForwarded),
+	}
+	if p.Duration > 0 {
+		fields["duration"] = fmt.Sprint(p.Duration)
+	}
+	if p.AudioURL != "" {
+		fields["audio_url"] = p.AudioURL
+	}
+	var out SendResponse
+	fileField := "audio"
+	filePath := p.AudioPath
+	if filePath != "" {
+		if err := c.postFormFile(ctx, "/send/audio", fields, fileField, filePath, &out); err != nil {
+			return nil, err
+		}
+		return &out, nil
+	}
+	// se só url, manda como json
+	payload := map[string]any{
+		"phone":        p.Phone,
+		"audio_url":    p.AudioURL,
+		"is_forwarded": p.IsForwarded,
+	}
+	if p.Duration > 0 {
+		payload["duration"] = p.Duration
+	}
+	if err := c.postJSON(ctx, "/send/audio", payload, &out); err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+type SendFileParams struct {
+	Phone       string
+	Caption     string
+	FilePath    string
+	IsForwarded bool
+	Duration    int
+}
+
+func (c *Client) SendFile(ctx context.Context, p SendFileParams) (*SendResponse, error) {
+	if p.Phone == "" || p.FilePath == "" {
+		return nil, errors.New("phone and filePath required")
+	}
+	fields := map[string]string{
+		"phone":        p.Phone,
+		"caption":      p.Caption,
+		"is_forwarded": fmt.Sprint(p.IsForwarded),
+	}
+	if p.Duration > 0 {
+		fields["duration"] = fmt.Sprint(p.Duration)
+	}
+	var out SendResponse
+	if err := c.postFormFile(ctx, "/send/file", fields, "file", p.FilePath, &out); err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+type SendVideoParams struct {
+	Phone       string
+	Caption     string
+	VideoPath   string
+	VideoURL    string
+	ViewOnce    bool
+	Compress    bool
+	IsForwarded bool
+	Duration    int
+}
+
+func (c *Client) SendVideo(ctx context.Context, p SendVideoParams) (*SendResponse, error) {
+	if p.Phone == "" || (p.VideoPath == "" && p.VideoURL == "") {
+		return nil, errors.New("phone and video required")
+	}
+	fields := map[string]string{
+		"phone":        p.Phone,
+		"caption":      p.Caption,
+		"view_once":    fmt.Sprint(p.ViewOnce),
+		"compress":     fmt.Sprint(p.Compress),
+		"is_forwarded": fmt.Sprint(p.IsForwarded),
+	}
+	if p.Duration > 0 {
+		fields["duration"] = fmt.Sprint(p.Duration)
+	}
+	if p.VideoURL != "" {
+		fields["video_url"] = p.VideoURL
+	}
+	var out SendResponse
+	fileField := "video"
+	filePath := p.VideoPath
+	if filePath != "" {
+		if err := c.postFormFile(ctx, "/send/video", fields, fileField, filePath, &out); err != nil {
+			return nil, err
+		}
+		return &out, nil
+	}
+	// se só url, manda como json
+	payload := map[string]any{
+		"phone":        p.Phone,
+		"caption":      p.Caption,
+		"view_once":    p.ViewOnce,
+		"compress":     p.Compress,
+		"video_url":    p.VideoURL,
+		"is_forwarded": p.IsForwarded,
+	}
+	if p.Duration > 0 {
+		payload["duration"] = p.Duration
+	}
+	if err := c.postJSON(ctx, "/send/video", payload, &out); err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+type SendContactParams struct {
+	Phone        string
+	ContactName  string
+	ContactPhone string
+	IsForwarded  bool
+	Duration     int
+}
+
+func (c *Client) SendContact(ctx context.Context, p SendContactParams) (*SendResponse, error) {
+	if p.Phone == "" || p.ContactName == "" || p.ContactPhone == "" {
+		return nil, errors.New("phone, contactName, contactPhone required")
+	}
+	payload := map[string]any{
+		"phone":         p.Phone,
+		"contact_name":  p.ContactName,
+		"contact_phone": p.ContactPhone,
+		"is_forwarded":  p.IsForwarded,
+	}
+	if p.Duration > 0 {
+		payload["duration"] = p.Duration
+	}
+	var out SendResponse
+	if err := c.postJSON(ctx, "/send/contact", payload, &out); err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+type SendLinkParams struct {
+	Phone       string
+	Link        string
+	Caption     string
+	IsForwarded bool
+	Duration    int
+}
+
+func (c *Client) SendLink(ctx context.Context, p SendLinkParams) (*SendResponse, error) {
+	if p.Phone == "" || p.Link == "" {
+		return nil, errors.New("phone and link required")
+	}
+	payload := map[string]any{
+		"phone":        p.Phone,
+		"link":         p.Link,
+		"caption":      p.Caption,
+		"is_forwarded": p.IsForwarded,
+	}
+	if p.Duration > 0 {
+		payload["duration"] = p.Duration
+	}
+	var out SendResponse
+	if err := c.postJSON(ctx, "/send/link", payload, &out); err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+type SendLocationParams struct {
+	Phone       string
+	Latitude    string
+	Longitude   string
+	IsForwarded bool
+	Duration    int
+}
+
+func (c *Client) SendLocation(ctx context.Context, p SendLocationParams) (*SendResponse, error) {
+	if p.Phone == "" || p.Latitude == "" || p.Longitude == "" {
+		return nil, errors.New("phone, latitude, longitude required")
+	}
+	payload := map[string]any{
+		"phone":        p.Phone,
+		"latitude":     p.Latitude,
+		"longitude":    p.Longitude,
+		"is_forwarded": p.IsForwarded,
+	}
+	if p.Duration > 0 {
+		payload["duration"] = p.Duration
+	}
+	var out SendResponse
+	if err := c.postJSON(ctx, "/send/location", payload, &out); err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+type SendPollParams struct {
+	Phone     string
+	Question  string
+	Options   []string
+	MaxAnswer int
+	Duration  int
+}
+
+func (c *Client) SendPoll(ctx context.Context, p SendPollParams) (*SendResponse, error) {
+	if p.Phone == "" || p.Question == "" || len(p.Options) == 0 || p.MaxAnswer == 0 {
+		return nil, errors.New("phone, question, options, maxAnswer required")
+	}
+	payload := map[string]any{
+		"phone":      p.Phone,
+		"question":   p.Question,
+		"options":    p.Options,
+		"max_answer": p.MaxAnswer,
+	}
+	if p.Duration > 0 {
+		payload["duration"] = p.Duration
+	}
+	var out SendResponse
+	if err := c.postJSON(ctx, "/send/poll", payload, &out); err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+type SendChatPresenceParams struct {
+	Phone  string
+	Action string // start ou stop
+}
+
+func (c *Client) SendChatPresence(ctx context.Context, p SendChatPresenceParams) (*SendResponse, error) {
+	if p.Phone == "" || (p.Action != "start" && p.Action != "stop") {
+		return nil, errors.New("phone and action=start|stop required")
+	}
+	payload := map[string]any{
+		"phone":  p.Phone,
+		"action": p.Action,
+	}
+	var out SendResponse
+	if err := c.postJSON(ctx, "/send/chat-presence", payload, &out); err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+type MessageActionParams struct {
+	MessageID string
+	Phone     string
+	Emoji     string // para react
+	Message   string // para update
+}
+
+func (c *Client) RevokeMessage(ctx context.Context, p MessageActionParams) (*SendResponse, error) {
+	if p.MessageID == "" || p.Phone == "" {
+		return nil, errors.New("messageID and phone required")
+	}
+	payload := map[string]any{"phone": p.Phone}
+	var out SendResponse
+	path := "/message/" + url.PathEscape(p.MessageID) + "/revoke"
+	if err := c.postJSON(ctx, path, payload, &out); err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *Client) DeleteMessage(ctx context.Context, p MessageActionParams) (*SendResponse, error) {
+	if p.MessageID == "" || p.Phone == "" {
+		return nil, errors.New("messageID and phone required")
+	}
+	payload := map[string]any{"phone": p.Phone}
+	var out SendResponse
+	path := "/message/" + url.PathEscape(p.MessageID) + "/delete"
+	if err := c.postJSON(ctx, path, payload, &out); err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *Client) ReactMessage(ctx context.Context, p MessageActionParams) (*SendResponse, error) {
+	if p.MessageID == "" || p.Phone == "" || p.Emoji == "" {
+		return nil, errors.New("messageID, phone, emoji required")
+	}
+	payload := map[string]any{"phone": p.Phone, "emoji": p.Emoji}
+	var out SendResponse
+	path := "/message/" + url.PathEscape(p.MessageID) + "/reaction"
+	if err := c.postJSON(ctx, path, payload, &out); err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *Client) UpdateMessage(ctx context.Context, p MessageActionParams) (*SendResponse, error) {
+	if p.MessageID == "" || p.Phone == "" || p.Message == "" {
+		return nil, errors.New("messageID, phone, message required")
+	}
+	payload := map[string]any{"phone": p.Phone, "message": p.Message}
+	var out SendResponse
+	path := "/message/" + url.PathEscape(p.MessageID) + "/update"
+	if err := c.postJSON(ctx, path, payload, &out); err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *Client) ReadMessage(ctx context.Context, p MessageActionParams) (*SendResponse, error) {
+	if p.MessageID == "" || p.Phone == "" {
+		return nil, errors.New("messageID and phone required")
+	}
+	payload := map[string]any{"phone": p.Phone}
+	var out SendResponse
+	path := "/message/" + url.PathEscape(p.MessageID) + "/read"
+	if err := c.postJSON(ctx, path, payload, &out); err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *Client) StarMessage(ctx context.Context, p MessageActionParams) (*GenericResponse, error) {
+	if p.MessageID == "" || p.Phone == "" {
+		return nil, errors.New("messageID and phone required")
+	}
+	payload := map[string]any{"phone": p.Phone}
+	var out GenericResponse
+	path := "/message/" + url.PathEscape(p.MessageID) + "/star"
+	if err := c.postJSON(ctx, path, payload, &out); err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *Client) UnstarMessage(ctx context.Context, p MessageActionParams) (*GenericResponse, error) {
+	if p.MessageID == "" || p.Phone == "" {
+		return nil, errors.New("messageID and phone required")
+	}
+	payload := map[string]any{"phone": p.Phone}
+	var out GenericResponse
+	path := "/message/" + url.PathEscape(p.MessageID) + "/unstar"
+	if err := c.postJSON(ctx, path, payload, &out); err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
