@@ -1,4 +1,4 @@
-module github.com/DantasBiao/gowa-client
+module github.com/drksbr/gowa-client
 
 go 1.24.0
 

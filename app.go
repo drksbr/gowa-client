@@ -5,7 +5,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/DantasBiao/gowa-client/pkg/gowa"
+	"github.com/drksbr/gowa-client/pkg/gowa"
 )
 
 func main() {

@@ -7,7 +7,7 @@ Cliente Go para a WhatsApp API MultiDevice (go-whatsapp-web-multidevice).
 Requer Go 1.21+
 
 ```bash
-go get github.com/DantasBiao/gowa-client@latest
+go get github.com/drksbr/gowa-client@latest
 go mod tidy
 ```
 
