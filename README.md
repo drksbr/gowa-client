@@ -1,5 +1,7 @@
 # gowa-client
 
+[![Go Reference](https://pkg.go.dev/badge/github.com/drksbr/gowa-client.svg)](https://pkg.go.dev/github.com/drksbr/gowa-client)
+
 Cliente Go para a WhatsApp API MultiDevice (go-whatsapp-web-multidevice).
 
 ## Instalação
@@ -30,7 +32,7 @@ Ou via variáveis de ambiente:
 export GOWA_BASE_URL="https://wa.provedorveloz.com.br/"
 export GOWA_USER="admin"
 export GOWA_PASS="sua_senha"
-go run app.go
+go run ./cmd/demo
 ```
 
 ## Exemplos de Uso
@@ -153,9 +155,16 @@ Todos os métodos retornam erro Go padrão. Se o erro for HTTP, a mensagem inclu
 - `ListChats(ctx, params)`
 - `GetChatMessages(ctx, chatJID, params)`
 
-## Exemplo completo
+## Exemplo completo (demo)
 
-Veja `app.go` para um exemplo de uso real, incluindo logs verbosos de payloads e respostas.
+Há um exemplo mínimo em `cmd/demo`. Para rodar localmente:
+
+```bash
+export GOWA_BASE_URL="http://localhost:3000"
+export GOWA_USER="admin"
+export GOWA_PASS="admin"
+go run ./cmd/demo
+```
 
 ## OpenAPI
 
