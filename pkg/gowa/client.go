@@ -245,6 +245,39 @@ type ChatMessagesResponse struct {
 }
 
 // Métodos de alto nível inteligentes
+// Parâmetros para envio de mensagem de texto
+type SendTextParams struct {
+	Phone          string // JID do destinatário (ex: 558388572816@s.whatsapp.net)
+	Message        string // Conteúdo da mensagem
+	ReplyMessageID string // Opcional: ID da mensagem a responder
+	IsForwarded    bool   // Opcional: se é encaminhada
+	Duration       int    // Opcional: duração de mensagem temporária (segundos)
+}
+
+// Envia uma mensagem de texto usando SendTextParams
+func (c *Client) SendTextMessage(ctx context.Context, p SendTextParams) (*SendResponse, error) {
+	if strings.TrimSpace(p.Phone) == "" || strings.TrimSpace(p.Message) == "" {
+		return nil, errors.New("phone e message são obrigatórios")
+	}
+	payload := map[string]any{
+		"phone":   p.Phone,
+		"message": p.Message,
+	}
+	if p.ReplyMessageID != "" {
+		payload["reply_message_id"] = p.ReplyMessageID
+	}
+	if p.IsForwarded {
+		payload["is_forwarded"] = true
+	}
+	if p.Duration > 0 {
+		payload["duration"] = p.Duration
+	}
+	var out SendResponse
+	if err := c.postJSON(ctx, "/send/message", payload, &out); err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
 func (c *Client) Login(ctx context.Context) (*LoginResponse, error) {
 	var out LoginResponse
 	if err := c.getJSON(ctx, "/app/login", nil, &out); err != nil {
